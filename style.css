@@ -1,0 +1,104 @@
+/* Font utama judul. Taruh file lisensi Obra Letra di folder fonts/ dengan nama
+   ObraLetra.woff2 (atau .woff / .otf). Selama file belum ada, dipakai Amarante. */
+@font-face {
+  font-family: 'Obra Letra';
+  src: url('fonts/ObraLetra.woff2') format('woff2'),
+       url('fonts/ObraLetra.woff') format('woff'),
+       url('fonts/ObraLetra.otf') format('opentype');
+  font-display: swap;
+}
+
+:root {
+  --navy: #333e67;
+  --yellow: #ffde5a;
+  --f-obra: 'Obra Letra', 'Amarante', serif;
+  --f-inter: 'Inter', sans-serif;
+  --s: 1;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+html { font-synthesis: none; -webkit-text-size-adjust: 100%; }
+body {
+  background: var(--navy);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+p { margin: 0; }
+a { color: inherit; }
+.cv a { text-decoration: none; }
+/* kotak elemen tidak menghalangi link di bawahnya (misal logo tertutup kotak menu) */
+.cv * { pointer-events: none; }
+.cv a, .cv a *, .cv .vbox, .cv .snd, .cv .snd * { pointer-events: auto; }
+
+/* Tiap halaman punya 3 versi tata letak dari Canva: PC (lebar 1366), tablet
+   (768) dan HP (390). app.js memilih versi dan skalanya sesuai lebar layar. */
+.pg {
+  display: none;
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  overflow: hidden;
+}
+.pg.on { display: block; }
+.cv {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+}
+.pg.v-d .cv-d, .pg.v-t .cv-t, .pg.v-m .cv-m { display: block; }
+.cv img { display: block; user-select: none; -webkit-user-drag: none; }
+.cv video { display: block; }
+
+/* Latar halaman satu layar di PC, menutupi seluruh layar */
+.bgl { display: none; position: absolute; inset: 0; overflow: hidden; }
+.pg.v-d .bgl { display: block; }
+.bgi {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 1366px;
+  height: 768px;
+}
+.bgi video, .bgi img { display: block; }
+
+/* Layar putih saat pindah halaman */
+#fade {
+  position: fixed;
+  inset: 0;
+  background: #fff;
+  pointer-events: none;
+  opacity: 1;
+  z-index: 50;
+  transition: opacity .45s ease;
+}
+#fade.out { opacity: 0; }
+
+/* Tombol suara untuk video karya */
+.snd {
+  position: absolute;
+  right: calc(10px / var(--s));
+  bottom: calc(10px / var(--s));
+  width: calc(34px / var(--s));
+  height: calc(34px / var(--s));
+  border: 0;
+  border-radius: 50%;
+  background: rgba(20, 24, 40, .65);
+  color: #fff;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  opacity: 0;
+  transition: opacity .2s ease;
+  z-index: 2;
+  padding: 0;
+}
+.vbox:hover .snd, .snd:focus-visible { opacity: 1; }
+.snd svg { width: calc(18px / var(--s)); height: calc(18px / var(--s)); }
+@media (hover: none) { .snd { opacity: 1; } }
+
+@media (prefers-reduced-motion: reduce) {
+  #fade { transition: none; }
+}

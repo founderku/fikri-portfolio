@@ -1,0 +1,32 @@
+WEBSITE PORTOFOLIO FIKRI (versi HTML, pengganti Canva)
+=======================================================
+
+Isi folder
+- index.html   : semua halaman (Sampul, Profil, ISC, Bluesense dan Barudak Turki,
+                 YouTube, Volunteer, Kontak)
+- style.css    : tampilan
+- app.js       : pindah halaman, animasi, video, tata letak HP/tablet/PC
+- media/       : semua foto dan video (sudah dikompres)
+- fonts/       : tempat file font Obra Letra (lihat di bawah)
+- favicon.svg  : ikon kecil di tab browser
+
+Cara online-kan (pilih salah satu, semuanya gratis)
+1. Netlify Drop: buka https://app.netlify.com/drop lalu seret folder ini.
+2. Vercel: buat project baru, unggah folder ini (tanpa pengaturan build).
+3. GitHub Pages: unggah isi folder ke repo, aktifkan Pages.
+Jangan dibuka dengan klik dua kali (file://). Pakai salah satu hosting di
+atas, atau server lokal, supaya video dan font termuat dengan benar.
+
+Font Obra Letra (PENTING)
+Obra Letra adalah font berbayar (pembuatnya Lurinzu, dijual di Gumroad,
+pilih lisensi "webfont"). Lisensi Canva hanya berlaku di dalam Canva.
+Selama file font belum ada, judul memakai font gratis Amarante yang mirip.
+Setelah membeli: taruh file di folder fonts/ dengan nama
+  ObraLetra.woff2  (atau ObraLetra.woff / ObraLetra.otf)
+Tidak perlu mengubah kode apa pun. Dengan font asli, posisi huruf judul
+akan sama persis dengan versi Canva.
+
+Mengubah link halaman
+Alamat halaman sama seperti di Canva: #page-0 (Sampul), #page-1 (Profil),
+#page-3 (ISC), #page-4 (Bluesense), #page-5 (YouTube), #page-6 (Volunteer),
+#page-7 (Kontak).
