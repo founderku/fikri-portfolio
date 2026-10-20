@@ -60,7 +60,7 @@
   var SPK_ON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>';
   var SPK_OFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="m16 9 6 6"/><path d="m22 9-6 6"/></svg>';
 
-  [].forEach.call(document.querySelectorAll('.cv video'), function (v) {
+  [].forEach.call(document.querySelectorAll('.cv video, .bgl video'), function (v) {
     v.muted = true;
     v.preload = 'none';
     // Canva menaruh gambar sampul di atas video; jadikan poster
@@ -80,7 +80,7 @@
       e.stopPropagation();
       var turnOn = v.muted;
       // hanya satu video bersuara
-      [].forEach.call(document.querySelectorAll('.cv video'), function (o) {
+      [].forEach.call(document.querySelectorAll('.cv video, .bgl video'), function (o) {
         if (o !== v && !o.muted) { o.muted = true; var ob = o.__snd; if (ob) ob.innerHTML = SPK_OFF; }
       });
       v.muted = !turnOn;
@@ -92,7 +92,7 @@
   });
 
   function playVideos(pg) {
-    [].forEach.call(document.querySelectorAll('.cv video'), function (v) {
+    [].forEach.call(document.querySelectorAll('.cv video, .bgl video'), function (v) {
       if (pg.contains(v) && v.getClientRects().length) {
         v.preload = 'auto';
         var p = v.play();
@@ -158,8 +158,17 @@
           });
         });
       } else if (t === '30') {
-        // foto muncul seketika setelah judul selesai
-        anim(e, [{ opacity: 0 }, { opacity: 0, offset: 0.999 }, { opacity: 1 }], { duration: OFFSET + 2400, easing: 'linear' });
+        // foto muncul halus setelah judul selesai, tapi baru setelah gambarnya siap
+        var t0 = performance.now();
+        var hold = anim(e, [{ opacity: 0 }, { opacity: 0 }], { duration: 1e9 });
+        var img = e.querySelector('img');
+        var ready = img && img.decode ? img.decode().catch(function () {}) : Promise.resolve();
+        ready.then(function () {
+          if (running.indexOf(hold) < 0) return; // halaman sudah berganti
+          hold.cancel();
+          var wait = Math.max(0, OFFSET + 1500 - (performance.now() - t0));
+          anim(e, [{ opacity: 0, translate: '0 14px' }, { opacity: 1, translate: '0 0' }], { duration: 550, delay: wait, easing: 'cubic-bezier(.2,.8,.3,1)' });
+        });
       }
     });
   }
@@ -170,6 +179,9 @@
     pg.classList.add('on');
     current = pg;
     lastV = layout(pg);
+    [].forEach.call(pg.querySelectorAll('img[loading="lazy"]'), function (im) {
+      if (im.getClientRects().length) im.loading = 'eager';
+    });
     window.scrollTo(0, 0);
     playVideos(pg);
     playAnims(pg);
@@ -213,7 +225,7 @@
   if (document.fonts && document.fonts.ready) {
     var done = false;
     document.fonts.ready.then(function () { if (!done) { done = true; start(); } });
-    setTimeout(function () { if (!done) { done = true; start(); } }, 1500);
+    setTimeout(function () { if (!done) { done = true; start(); } }, 1000);
   } else {
     start();
   }
