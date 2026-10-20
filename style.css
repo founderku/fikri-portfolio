@@ -64,6 +64,14 @@ a { color: inherit; }
 }
 .bgi video, .bgi img { display: block; }
 
+/* Font pengganti: huruf judul memakai lebarnya sendiri */
+html.no-obra .cv .ob span:not(:has(span)) { width: auto !important; }
+
+/* Link kontak (email, WhatsApp, LinkedIn) menutupi kotak teksnya */
+.lnk-a { position: absolute; inset: -6px; z-index: 3; cursor: pointer; }
+.cv .lnk p, .cv .lnk span { transition: color .2s ease; }
+.cv .lnk:hover p, .cv .lnk:hover span { color: var(--yellow) !important; }
+
 /* Layar putih saat pindah halaman */
 #fade {
   position: fixed;
