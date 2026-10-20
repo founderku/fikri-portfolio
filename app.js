@@ -274,6 +274,20 @@
     });
   }
 
+  // ---------- Tombol kembali ke atas ----------
+  var totop = document.getElementById('totop');
+  var topTick = false;
+  function topCheck() {
+    topTick = false;
+    totop.classList.toggle('show', window.scrollY > 160);
+  }
+  window.addEventListener('scroll', function () {
+    if (!topTick) { topTick = true; requestAnimationFrame(topCheck); }
+  }, { passive: true });
+  totop.addEventListener('click', function () {
+    window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+  });
+
   // ---------- Pindah halaman ----------
   function show(pg, first) {
     if (current) current.classList.remove('on');
@@ -281,6 +295,7 @@
     current = pg;
     lastV = layout(pg);
     window.scrollTo(0, 0);
+    totop.classList.remove('show');
     playAnims(pg);
     if (lastV === 'f') playFlow(pg);
     // Gambar di layar pertama didekode dulu di balik layar putih (maks 0,9 detik),
