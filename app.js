@@ -19,6 +19,7 @@
   function variantFor(vw) { return vw >= 1094 ? 'd' : vw >= 560 ? 't' : 'm'; }
 
   function layout(pg) {
+    if (pg.classList.contains('flow')) return 'f'; // halaman tengah: tata letak web biasa
     var vw = document.documentElement.clientWidth || window.innerWidth;
     var vh = window.innerHeight;
     var v = variantFor(vw);
@@ -62,7 +63,7 @@
   var SPK_ON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>';
   var SPK_OFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="m16 9 6 6"/><path d="m22 9-6 6"/></svg>';
 
-  [].forEach.call(document.querySelectorAll('.cv video, .bgl video'), function (v) {
+  [].forEach.call(document.querySelectorAll('.cv video, .bgl video, .flow video'), function (v) {
     v.muted = true;
     v.preload = 'none';
     // Canva menaruh gambar sampul di atas video; jadikan poster
@@ -72,7 +73,7 @@
     if (img) { v.setAttribute('data-poster', img.getAttribute('src')); ov.parentNode.removeChild(ov); }
     var isBg = /hero-amsterdam/.test(v.getAttribute('src'));
     if (isBg) return;
-    var box = v.closest('.cv > div > div') || v.parentNode;
+    var box = v.closest('.m') || v.closest('.cv > div > div') || v.parentNode;
     box.classList.add('vbox');
     var b = document.createElement('button');
     b.className = 'snd';
@@ -83,7 +84,7 @@
       e.stopPropagation();
       var turnOn = v.muted;
       // hanya satu video bersuara
-      [].forEach.call(document.querySelectorAll('.cv video, .bgl video'), function (o) {
+      [].forEach.call(document.querySelectorAll('.cv video, .bgl video, .flow video'), function (o) {
         if (o !== v && !o.muted) { o.muted = true; var ob = o.__snd; if (ob) ob.innerHTML = SPK_OFF; }
       });
       v.muted = !turnOn;
@@ -115,7 +116,7 @@
   }
 
   function playVideos(pg) {
-    [].forEach.call(document.querySelectorAll('.cv video, .bgl video'), function (v) {
+    [].forEach.call(document.querySelectorAll('.cv video, .bgl video, .flow video'), function (v) {
       if (io && !v.__obs) { io.observe(v); v.__obs = true; }
       if (!pg.contains(v) && !v.muted) { v.muted = true; if (v.__snd) v.__snd.innerHTML = SPK_OFF; }
       sync(v);
@@ -216,6 +217,63 @@
     });
   }
 
+  // ---------- Halaman tengah (kartu-map) ----------
+  // judul: huruf dibungkus satu per satu untuk efek terbuka dari kiri
+  [].forEach.call(document.querySelectorAll('.flow [data-wipe]'), function (h) {
+    var walk = function (node) {
+      [].slice.call(node.childNodes).forEach(function (c) {
+        if (c.nodeType === 3) {
+          // huruf dikelompokkan per kata, supaya baris hanya patah di antara kata
+          var frag = document.createDocumentFragment();
+          c.textContent.split(/(\s+)/).forEach(function (word) {
+            if (!word) return;
+            if (/^\s+$/.test(word)) { frag.appendChild(document.createTextNode(' ')); return; }
+            var w = document.createElement('span'); w.className = 'w';
+            word.split('').forEach(function (ch) {
+              var sp = document.createElement('span'); sp.className = 'ch'; sp.textContent = ch; w.appendChild(sp);
+            });
+            frag.appendChild(w);
+          });
+          c.parentNode.replaceChild(frag, c);
+        } else if (c.nodeType === 1 && c.tagName !== 'BR') walk(c);
+      });
+    };
+    walk(h);
+  });
+
+  var rvIo = 'IntersectionObserver' in window ? new IntersectionObserver(function (list) {
+    list.forEach(function (en) {
+      if (!en.isIntersecting) return;
+      en.target.classList.add('in');
+      rvIo.unobserve(en.target);
+    });
+  }, { rootMargin: '0px 0px -8% 0px' }) : null;
+
+  function playFlow(pg) {
+    var panel = pg.querySelector('.panel'), tabs = pg.querySelector('.tabs');
+    // tab aktif digeser ke tengah kalau deretan tab lebih lebar dari layar (HP)
+    var on = tabs && tabs.querySelector('.tab.on');
+    if (on && tabs.scrollWidth > tabs.clientWidth) tabs.scrollLeft = on.offsetLeft - (tabs.clientWidth - on.offsetWidth) / 2;
+    [panel, tabs].forEach(function (el) { if (el) { el.classList.remove('rise'); void el.offsetWidth; el.classList.add('rise'); } });
+    // isi muncul bergiliran saat terlihat; urutan per baris layar
+    var rvs = [].slice.call(pg.querySelectorAll('.rv'));
+    var rowTop = null, k = 0;
+    rvs.forEach(function (e) {
+      e.classList.remove('in');
+      var t = Math.round(e.getBoundingClientRect().top / 40);
+      k = t === rowTop ? k + 1 : 0;
+      rowTop = t;
+      e.style.setProperty('--d', (Math.min(k, 8) * 0.06 + 0.25) + 's');
+      if (rvIo) rvIo.observe(e); else e.classList.add('in');
+    });
+    if (reduce || !pg.animate) return;
+    [].forEach.call(pg.querySelectorAll('[data-wipe]'), function (h) {
+      [].forEach.call(h.querySelectorAll('.ch'), function (s, i) {
+        anim(s, [{ clipPath: 'inset(-30% 100% -30% -10%)' }, { clipPath: 'inset(-30% -30% -30% -10%)' }], { duration: 160, delay: OFFSET + 250 + i * 55, easing: 'linear' });
+      });
+    });
+  }
+
   // ---------- Pindah halaman ----------
   function show(pg, first) {
     if (current) current.classList.remove('on');
@@ -224,6 +282,7 @@
     lastV = layout(pg);
     window.scrollTo(0, 0);
     playAnims(pg);
+    if (lastV === 'f') playFlow(pg);
     // Gambar di layar pertama didekode dulu di balik layar putih (maks 0,9 detik),
     // tunggu 2 frame sampai halaman selesai digambar, baru layar putih memudar
     // dan animasi berjalan. Dengan begitu tidak ada frame yang tersendat.
@@ -256,7 +315,7 @@
           // layar putih hilang, supaya siap sebelum digulir
           setTimeout(function () {
             if (current !== pg) return;
-            [].forEach.call(pg.querySelectorAll('.cv-' + lastV + ' img[loading="lazy"]'), function (im) {
+            [].forEach.call(pg.querySelectorAll((lastV === 'f' ? '' : '.cv-' + lastV + ' ') + 'img[loading="lazy"]'), function (im) {
               im.loading = 'eager';
               if (im.decode) im.decode().catch(function () {});
             });
