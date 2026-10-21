@@ -221,6 +221,9 @@ a.tab:hover { transform: translateY(-4px); }
   transition: border-color .2s ease, gap .2s ease;
 }
 .more:hover { border-color: var(--navy); gap: 10px; }
+.blk.y .more { border-color: var(--navy); }
+.blk.y .more:hover { border-color: #fff; }
+.eps + .more { margin-top: 20px; }
 .split { display: grid; grid-template-columns: 1.15fr 1fr; gap: 34px; align-items: start; }
 .split2 { display: grid; grid-template-columns: 1fr 1.25fr; gap: 34px; align-items: start; }
 
@@ -339,6 +342,34 @@ a.tab:hover { transform: translateY(-4px); }
   .g { gap: 10px; }
   .m { border-radius: 14px; }
   .ep { grid-template-columns: 1fr; }
+}
+
+/* ---------- Perbaikan tata letak HP dan tablet ---------- */
+@media (max-width: 1080px) {
+  /* menu seperti di Sampul: teks mengalir, tanda | ikut di tengah baris */
+  .fh nav { display: block; text-align: right; line-height: 1.7; }
+  .fh nav a { display: inline; }
+  .fh nav a + a::before { margin: 0 6px; }
+
+  /* tab jadi kotak (4 kolom kalau muat, 2 kolom di HP), tidak bisa tergeser */
+  .tabs { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 6px; padding: 0; margin-bottom: 12px; overflow: visible; }
+  .tab {
+    display: flex; align-items: center; justify-content: center; text-align: center;
+    font-size: 13px; line-height: 1.25; padding: 10px 8px; min-height: 44px;
+    border-radius: 12px; margin: 0; box-shadow: inset 0 0 0 2px var(--navy);
+  }
+  .tab.on { background: var(--cream); box-shadow: inset 0 0 0 2px var(--yellow); }
+  a.tab:hover { transform: none; }
+  .panel { box-shadow: 0 20px 40px -24px rgba(0, 0, 0, .45); }
+}
+@media (max-width: 640px) {
+  .tabs { grid-template-columns: 1fr 1fr; }
+
+  /* galeri: baris terakhir yang tidak penuh diletakkan di tengah */
+  .g.g4, .g.g5, .g.g6, .g.g7, .g.g3 { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+  .g.g4 > *, .g.g5 > *, .g.g6 > *, .g.g7 > * { width: calc((100% - 16px) / 3); }
+  .g.g3 > * { width: calc((100% - 8px) / 2); }
+  .more { font-size: 15px; }
 }
 
 /* ---------- Tombol kembali ke atas (semua halaman) ---------- */
